@@ -89,7 +89,7 @@ async function run() {
         // Logout Token
         app.post("/logout", async (req, res) => {
             const user = req.body;
-            console.log("LoggedUser: ", user);
+            // console.log("LoggedUser: ", user);
             res.clearCookie("token", { ...cookieOptions, maxAge: 0 }).send({ success: true });
         });
 
@@ -106,8 +106,19 @@ async function run() {
 
         // Get All Services.
         app.get("/services", async (req, res) => {
-            const result = await servicesCollections.find().toArray();
-            res.send(result);
+            const filter = req.query;
+            // console.log(filter);
+            const query = {
+                title: { $regex: filter.search, $options: 'i' }
+            };
+            const options = {
+                sort: {
+                    price: filter.sort === 'high-to-low' ? -1 : 1
+                }
+            }
+            const result = servicesCollections.find(query, options);
+            const result2 = await result.toArray()
+            res.send(result2);
         });
 
 
